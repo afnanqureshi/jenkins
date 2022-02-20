@@ -1,0 +1,24 @@
+pipeline {
+	agent any
+    stages {
+        stage('SCM Checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'jenkins_credentials_for_bitbucket_access', url: 'git@github.com:afnanqureshi/jenkins.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'jenkins_credentials_for_bitbucket_access', variable: 'token')]) {
+                        sh '''#!/bin/bash
+                            export token = "${token}"
+                            source python3-virtualenv/bin/activate
+                            python JenkinsPluginsInfo/JenkinsGetPluginsInfo.py
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
+
